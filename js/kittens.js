@@ -28,7 +28,7 @@ var images = {};
 
 
 class Entity {
-        
+
     render(ctx) {
         ctx.drawImage(this.sprite, this.x, this.y);
     }
@@ -38,14 +38,14 @@ class Entity {
 class Enemy extends Entity {
     constructor(xPos) {
         super();
-        
+
         this.x = xPos;
         this.y = -ENEMY_HEIGHT;
         this.sprite = images['enemy.png'];
 
         // Each enemy should have a different speed
         this.speed = Math.random() / 2 + 0.25;
-        
+
     }
 
     update(timeDiff) {
@@ -56,7 +56,7 @@ class Enemy extends Entity {
 class Player extends Entity{
     constructor() {
         super();
-        
+
         this.x = 2 * PLAYER_WIDTH;
         this.y = GAME_HEIGHT - PLAYER_HEIGHT - 10;
         this.sprite = images['player.png'];
@@ -70,7 +70,7 @@ class Player extends Entity{
         else if (direction === MOVE_RIGHT && this.x < GAME_WIDTH - PLAYER_WIDTH) {
             this.x = this.x + PLAYER_WIDTH;
         }
-        
+
     }
 
 }
@@ -83,10 +83,10 @@ The engine will try to draw your game at 60 frames per second using the requestA
 */
 class Engine {
     constructor(element) {
-        
+
         // Flag for state of player (dead or alive)
         this.playerDead = true;
-        
+
         // add event listener for movement and
         // listen for space bar to restart game upon death.
         document.addEventListener('keydown', e => {
@@ -100,9 +100,9 @@ class Engine {
                 this.player.move(MOVE_RIGHT);
             }
         });
-       
+
         this.player = new Player();
-        
+
         // Setup enemies, making sure there are always three
         this.setupEnemies();
 
@@ -111,23 +111,23 @@ class Engine {
         canvas.width = GAME_WIDTH;
         canvas.height = GAME_HEIGHT;
         element.appendChild(canvas);
-        
+
         this.ctx = canvas.getContext('2d');
 
         // Since gameLoop will be called out of context, bind it once here.
         this.gameLoop = this.gameLoop.bind(this);
-        
+
     }
-    
+
     start() {
         // Setup the player
         this.player = new Player();
          // Flag for state of player (dead or alive)
         this.playerDead = false;
-       
+
         this.enemies = [];
         this.setupEnemies();
-        
+
         this.score = 0;
         this.lastFrame = Date.now();
         this.gameLoop();
@@ -163,10 +163,8 @@ class Engine {
 
     // Draw the canvas
     loadGameBackground() {
-        this.score = 0;
-        this.lastFrame = Date.now();
         this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
-        this.player.render(this.ctx); // draw the player
+        this.player.render(this.ctx); // draw the playerthis.score = 0;
         this.ctx.textAlign = 'center';
         this.ctx.font = 'bold 18px Verdana' ;
         this.ctx.fillStyle = '#ffffff';
@@ -180,8 +178,8 @@ class Engine {
     It's also at this point that we will check for any collisions between the game entities
     Collisions will often indicate either a player death or an enemy kill
 
-    In order to allow the game objects to self-determine their behaviors, gameLoop will call the `update` 
-    method of each entity To account for the fact that we don't always have 60 frames per second, gameLoop 
+    In order to allow the game objects to self-determine their behaviors, gameLoop will call the `update`
+    method of each entity To account for the fact that we don't always have 60 frames per second, gameLoop
     will send a time delta argument to `update`
     You should use this parameter to scale your update appropriately
      */
@@ -245,20 +243,20 @@ class Engine {
                 {
                     return false;
                  }
-            /*else*/ if( this.enemies[i] 
+                 else if( this.enemies[i]
                 &&
                 this.player.x === this.enemies[i].x
                 &&
-                this.enemies[i].y + ENEMY_HEIGHT - 20 > this.player.y 
+                this.enemies[i].y + ENEMY_HEIGHT - 20 > this.player.y
             ){
-              return true; 
+              return true;
             }
        }
        return false
     }
-    
+
 }
 
 // This section will start the game
 var gameEngine = new Engine(document.getElementById('app'));
-gameEngine.loadGameBackground()
+requestAnimationFrame(()=>gameEngine.loadGameBackground())
