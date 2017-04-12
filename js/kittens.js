@@ -1,12 +1,10 @@
 // This sectin contains some game constants. It is not super interesting
-var GAME_WIDTH = 750;
+var GAME_WIDTH = 375;
 var GAME_HEIGHT = 500;
-var GAME_CEILING = 0;
-var GAME_FLOOR = 446;
 
 var ENEMY_WIDTH = 75;
 var ENEMY_HEIGHT = 156;
-var MAX_ENEMIES = 5;
+var MAX_ENEMIES = 3;
 
 var PLAYER_WIDTH = 75;
 var PLAYER_HEIGHT = 54;
@@ -14,16 +12,11 @@ var PLAYER_HEIGHT = 54;
 // These two constants keep us from using "magic numbers" in our code
 var LEFT_ARROW_CODE = 37;
 var RIGHT_ARROW_CODE = 39;
-var UP_ARROW_CODE = 38;
-var DOWN_ARROW_CODE = 40;
-var ENTER_KEY = 13;
 var SPACE_BAR = 32;
 
 // These two constants allow us to DRY
 var MOVE_LEFT = 'left';
 var MOVE_RIGHT = 'right';
-var MOVE_UP = 'up';
-var MOVE_DOWN = 'down';
 
 // Preload game images
 var images = {};
@@ -77,17 +70,11 @@ class Player extends Entity{
         else if (direction === MOVE_RIGHT && this.x < GAME_WIDTH - PLAYER_WIDTH) {
             this.x = this.x + PLAYER_WIDTH;
         }
-        else if (direction === MOVE_UP && this.y > GAME_CEILING + PLAYER_HEIGHT) {
-            this.y = this.y - PLAYER_HEIGHT;
-            console.log(this.y);
-        }
-        else if (direction === MOVE_DOWN && this.y < GAME_FLOOR - PLAYER_HEIGHT) {
-            this.y = this.y + PLAYER_HEIGHT;
-            console.log(this.y);
-        }
+
     }
 
 }
+
 
 /*
 This section is a tiny game engine.
@@ -101,9 +88,9 @@ class Engine {
         this.playerDead = true;
 
         // add event listener for movement and
-        // listen for ENTER_KEY to restart game upon death.
+        // listen for space bar to restart game upon death.
         document.addEventListener('keydown', e => {
-            if (e.keyCode === ENTER_KEY && this.playerDead){
+            if (e.keyCode === SPACE_BAR && this.playerDead){
                 this.start()
             }
             if (e.keyCode === LEFT_ARROW_CODE) {
@@ -111,12 +98,6 @@ class Engine {
             }
             if (e.keyCode === RIGHT_ARROW_CODE) {
                 this.player.move(MOVE_RIGHT);
-            }
-            if (e.keyCode === UP_ARROW_CODE) {
-                this.player.move(MOVE_UP);
-            }
-            if (e.keyCode === DOWN_ARROW_CODE) {
-                this.player.move(MOVE_DOWN);
             }
         });
 
@@ -138,19 +119,21 @@ class Engine {
 
     }
 
-      start() {
-          // Setup the player
-          this.player = new Player();
-           // Flag for state of player (dead or alive)
-          this.playerDead = false;
+    start() {
+        // Setup the player
+        this.player = new Player();
+         // Flag for state of player (dead or alive)
+        this.playerDead = false;
 
-          this.enemies = [];
-          this.setupEnemies();
+        this.enemies = [];
+        this.setupEnemies();
 
-          this.score = 0;
-          this.lastFrame = Date.now();
-          this.gameLoop();
-      }
+        this.score = 0;
+        this.lastFrame = Date.now();
+        this.gameLoop();
+    }
+
+
     /*
      The game allows for 5 horizontal slots where an enemy can be present.
      At any point in time there can be at most MAX_ENEMIES enemies otherwise the game would be impossible
@@ -180,19 +163,14 @@ class Engine {
 
     // Draw the canvas
     loadGameBackground() {
-        this.score = 0;
-        this.lastFrame = Date.now();
         this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
-        this.player.render(this.ctx); // draw the player
+        this.player.render(this.ctx); // draw the playerthis.score = 0;
         this.ctx.textAlign = 'center';
         this.ctx.font = 'bold 18px Verdana' ;
         this.ctx.fillStyle = '#ffffff';
         this.ctx.fillText( 'CAN I HAZ BURGERS', (GAME_WIDTH / 2), 250);
-        this.ctx.fillText('(press ENTER to play)', (GAME_WIDTH / 2), 280);
-        console.log('super');
+        this.ctx.fillText('(press space to play)', (GAME_WIDTH / 2), 280);
     }
-
-
 
     /*
     This is the core of the game engine. The `gameLoop` function gets called ~60 times per second
@@ -211,14 +189,14 @@ class Engine {
         var timeDiff = currentFrame - this.lastFrame;
 
         // Increase the score!
-        this.score += Math.round(timeDiff * .1) ;
+        this.score += timeDiff;
 
         // Call update on all enemies
-        this.enemies.forEach(enemy => enemy.update(timeDiff))
+        this.enemies.forEach(enemy => enemy.update(timeDiff));
 
         // Draw everything!
         this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
-        this.enemies.forEach(enemy => enemy.render(this.ctx)); // draw the enemie
+        this.enemies.forEach(enemy => enemy.render(this.ctx)); // draw the enemies
         this.player.render(this.ctx); // draw the player
 
         // Check if any enemies should die
@@ -236,11 +214,10 @@ class Engine {
             this.ctx.textAlign = 'center';
             this.ctx.font = 'bold 40px Impact';
             this.ctx.fillStyle = '#ffffff';
-            this.ctx.fillText( 'GAME OVER', GAME_WIDTH / 2, GAME_HEIGHT / 2);
-            this.ctx.font = 'bold 30px Impact';
-            this.ctx.fillText(this.score, GAME_WIDTH / 2, (GAME_HEIGHT / 2) + 40);
+            this.ctx.fillText( 'GAME OVER', (GAME_WIDTH / 2), 250);
+            this.ctx.fillText(this.score, (GAME_WIDTH / 2), 295);
             this.ctx.font = 'Normal 16px Verdana';
-            this.ctx.fillText('Hit Enter to Restart', GAME_WIDTH / 2, (GAME_HEIGHT / 2) + 65);
+            this.ctx.fillText('Hit Space to Restart', (GAME_WIDTH / 2), 325);
             this.playerDead = true;
         }
         else {
@@ -266,7 +243,7 @@ class Engine {
                 {
                     return false;
                  }
-            /*else*/ if( this.enemies[i]
+                 else if( this.enemies[i]
                 &&
                 this.player.x === this.enemies[i].x
                 &&
@@ -279,6 +256,7 @@ class Engine {
     }
 
 }
+
 // This section will start the game
 var gameEngine = new Engine(document.getElementById('app'));
-  requestAnimationFrame(()=>gameEngine.loadGameBackground());
+requestAnimationFrame(()=>gameEngine.loadGameBackground())
