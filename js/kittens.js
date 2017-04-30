@@ -187,6 +187,9 @@ class Engine {
         this.ctx.fillStyle = '#ffffff';
         this.ctx.fillText( 'CAN I HAZ BURGERS', (GAME_WIDTH / 2), 250);
         this.ctx.fillText('(press space to play)', (GAME_WIDTH / 2), 280);
+        if (this.playerDead) {
+          requestAnimationFrame(()=>this.loadGameBackground())
+        }
     }
 
     /*
